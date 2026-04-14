@@ -4,37 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Melodía — Reproductor</title>
+
+ 
   <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <div class="app">
-    <!-- HEADER -->
-    <header class="header">
-      <div class="logo">
+  <div class="app dynamic-bg">
+
+    
+    <header class="header" role="banner">
+      <div class="logo" aria-label="Aplicación Melodía">
         Melodía<span class="logo-dot">.</span>
       </div>
-      <div class="upload-zone">
-        <span class="queue-count" id="queueCount">0 canciones</span>
-        <button class="btn-upload" onclick="triggerFileInput()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-          Agregar canción
+
+      <div class="upload-zone" role="group" aria-label="Carga de música">
+        <span class="queue-count" id="queueCount" aria-live="polite">
+          0 canciones
+        </span>
+
+        <button class="btn-upload"
+                onclick="triggerFileInput()"
+                aria-label="Agregar canciones">
+          ⬆ Agregar canción
         </button>
-        <button class="btn-upload primary-btn" onclick="triggerFolderInput()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-          Cargar carpeta
+
+        <button class="btn-upload primary-btn"
+                onclick="triggerFolderInput()"
+                aria-label="Cargar carpeta completa">
+          📁 Cargar carpeta
         </button>
       </div>
+
       <input type="file" id="fileInput" accept="audio/*" multiple hidden onchange="handleFiles(this.files)">
       <input type="file" id="folderInput" accept="audio/*" multiple webkitdirectory hidden onchange="handleFiles(this.files)">
     </header>
 
-    <!-- PLAYLIST -->
-    <main class="playlist-panel" id="playlistPanel">
+  
+    <main class="playlist-panel" id="playlistPanel" role="main">
       <div class="playlist-header">
         <h2>Lista de reproducción</h2>
       </div>
-      <div id="playlistContainer">
+
+      <section id="playlistContainer" aria-live="polite">
         <div class="playlist-empty" id="emptyState">
           <div class="playlist-empty-icon">♪</div>
           <div>
@@ -42,86 +57,116 @@
             Agrega archivos de audio para comenzar
           </div>
         </div>
-      </div>
+      </section>
     </main>
 
-    <!-- PLAYER -->
-    <aside class="player-panel">
+  
+    <aside class="player-panel" role="complementary">
+
       <span class="now-playing-label">Reproduciendo ahora</span>
 
-      <div class="artwork-container">
+      <div class="artwork-container" aria-label="Carátula del álbum">
         <div class="artwork-ring" id="artworkRing"></div>
+
         <div class="artwork-circle no-cover" id="artworkCircle">
           <div class="vinyl-hole"></div>
-          <span id="artworkEmoji" style="position:relative;z-index:1">🎵</span>
+          <span id="artworkEmoji">🎵</span>
         </div>
       </div>
 
+  
       <div class="song-meta">
         <div class="now-title" id="nowTitle">Sin reproducción</div>
         <div class="now-artist" id="nowArtist">—</div>
       </div>
 
+      
       <div class="visualizer-wrap">
-        <canvas id="visualizer"></canvas>
+        <canvas id="visualizer" aria-label="Visualizador de audio"></canvas>
       </div>
 
+  
       <div class="progress-section">
-        <div class="progress-bar-wrap" id="progressWrap" onclick="seekAudio(event)">
-          <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+        <div class="progress-bar-wrap"
+             id="progressWrap"
+             onclick="seekAudio(event)"
+             role="slider"
+             aria-valuemin="0"
+             aria-valuemax="100">
+          <div class="progress-bar-fill" id="progressFill"></div>
         </div>
+
         <div class="time-row">
           <span id="timeElapsed">0:00</span>
           <span id="timeDuration">0:00</span>
         </div>
       </div>
 
-      <div class="controls">
-        <button class="skip-btn" onclick="skipBackward()" title="Atrás 5s">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
-          <span class="skip-label">5</span>
+   
+      <div class="controls" role="group" aria-label="Controles de reproducción">
+
+        <button class="skip-btn" onclick="skipBackward()" aria-label="Retroceder 5 segundos">
+          ⏪ 5
         </button>
-        <button class="ctrl-btn" onclick="prevSong()" title="Anterior">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+
+        <button class="ctrl-btn" onclick="prevSong()" aria-label="Canción anterior">
+          ⏮
         </button>
-        <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()">
-          <svg id="playIcon" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+
+        <button class="ctrl-btn play-btn"
+                id="playBtn"
+                onclick="togglePlay()"
+                aria-label="Reproducir o pausar">
+          ▶
         </button>
-        <button class="ctrl-btn" onclick="nextSong()" title="Siguiente">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2.5-6l5.5-3.9V15L8.5 12zM16 6h2v12h-2z"/></svg>
+
+        <button class="ctrl-btn" onclick="nextSong()" aria-label="Siguiente canción">
+          ⏭
         </button>
-        <button class="skip-btn" onclick="skipForward()" title="Adelantar 5s">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/></svg>
-          <span class="skip-label">5</span>
+
+        <button class="skip-btn" onclick="skipForward()" aria-label="Avanzar 5 segundos">
+          5 ⏩
         </button>
+
       </div>
 
+     
       <div class="volume-row">
-        <svg class="vol-icon" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-        </svg>
-        <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="0.8" oninput="setVolume(this.value)">
+        <label for="volSlider" class="visually-hidden">Volumen</label>
+
+        <input type="range"
+               class="vol-slider"
+               id="volSlider"
+               min="0"
+               max="1"
+               step="0.01"
+               value="0.8"
+               oninput="setVolume(this.value)">
       </div>
+
     </aside>
 
     <div class="transport-bar"></div>
+
   </div>
 
-  <!-- Modal añadir en posición -->
-  <div class="modal-overlay" id="posModal">
+  <div class="modal-overlay" id="posModal" role="dialog" aria-modal="true">
     <div class="modal">
       <h3>Insertar en posición</h3>
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Posición (1 = inicio)</p>
-      <input type="number" id="posInput" min="1" value="1" placeholder="Número de posición">
+
+      <p>Posición (1 = inicio)</p>
+
+      <input type="number" id="posInput" min="1" value="1">
+
       <div class="modal-btns">
-        <button class="btn-sm" onclick="closeModal()">Cancelar</button>
-        <button class="btn-sm confirm" onclick="confirmInsert()">Insertar</button>
+        <button onclick="closeModal()">Cancelar</button>
+        <button onclick="confirmInsert()">Insertar</button>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" aria-live="assertive"></div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
