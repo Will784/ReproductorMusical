@@ -14,168 +14,146 @@ class DoublyLinkedList {
     this.size = 0;
   }
 
-  isEmpty() {
-    return this.size === 0;
-  }
+  add(song) {
+    const newNode = new SongNode(song);
 
-  clear() {
-    let node = this.head;
-    while (node) {
-      this._cleanupNode(node);
-      node = node.next;
-    }
-    this.head = this.tail = this.current = null;
-    this.size = 0;
-  }
-
-  addLast(song) {
-    const node = new SongNode(song);
-
-    if (this.isEmpty()) {
-      this.head = this.tail = this.current = node;
+    if (!this.head) {
+      this.head = this.tail = this.current = newNode;
     } else {
-      node.prev = this.tail;
-      this.tail.next = node;
-      this.tail = node;
+      this.tail.next = newNode;
+      newNode.prev = this.tail;
+      this.tail = newNode;
     }
 
     this.size++;
-    return node;
   }
 
-  addFirst(song) {
-    const node = new SongNode(song);
-
-    if (this.isEmpty()) {
-      this.head = this.tail = this.current = node;
-    } else {
-      node.next = this.head;
-      this.head.prev = node;
-      this.head = node;
-    }
-
-    this.size++;
-    return node;
-  }
-
-  addAt(song, position) {
-    if (position <= 1) return this.addFirst(song);
-    if (position > this.size) return this.addLast(song);
-
-    let current = this.head;
-    let index = 1;
-
-    while (index < position - 1) {
-      current = current.next;
-      index++;
-    }
-
-    const node = new SongNode(song);
-    const nextNode = current.next;
-
-    current.next = node;
-    node.prev = current;
-    node.next = nextNode;
-
-    if (nextNode) nextNode.prev = node;
-
-    this.size++;
-    return node;
-  }
-
-  remove(node) {
-    if (!node || this.isEmpty()) return;
-
-    if (node.prev) node.prev.next = node.next;
-    else this.head = node.next;
-
-    if (node.next) node.next.prev = node.prev;
-    else this.tail = node.prev;
-
-    if (this.current === node) {
-      this.current = node.next || node.prev || null;
-    }
-
-    this._cleanupNode(node);
-
-    this.size--;
-  }
-
-  goNext() {
-    if (this.current?.next) {
+  next() {
+    if (this.current && this.current.next) {
       this.current = this.current.next;
-      return true;
     }
-    return false;
+    return this.current;
   }
 
-  goPrev() {
-    if (this.current?.prev) {
+  prev() {
+    if (this.current && this.current.prev) {
       this.current = this.current.prev;
-      return true;
     }
-    return false;
+    return this.current;
   }
 
   toArray() {
-    const result = [];
-    let node = this.head;
+    let arr = [];
+    let temp = this.head;
 
-    while (node) {
-      result.push(node);
-      node = node.next;
+    while (temp) {
+      arr.push(temp);
+      temp = temp.next;
     }
 
-    return result;
+    return arr;
+  }
+}
+
+const playlist = new DoublyLinkedList();
+const audio = new Audio();
+
+const container = document.getElementById("playlistContainer");
+const emptyState = document.getElementById("emptyState");
+const nowTitle = document.getElementById("nowTitle");
+const playBtn = document.getElementById("playBtn");
+
+
+// =======================
+// CARGA DE ARCHIVOS
+// =======================
+function triggerFileInput() {
+  document.getElementById("fileInput").click();
+}
+
+function handleFiles(files) {
+  for (let file of files) {
+    const url = URL.createObjectURL(file);
+
+    playlist.add({
+      name: file.name,
+      url: url
+    });
   }
 
-  findById(id) {
-    let node = this.head;
+  renderPlaylist();
+}
 
-    while (node) {
-      if (node.song.id === id) return node;
-      node = node.next;
-    }
 
-    return null;
+// =======================
+// RENDER
+// =======================
+function renderPlaylist(filter = "") {
+  container.innerHTML = "";
+
+  const songs = playlist.toArray();
+
+  const filtered = songs.filter(node =>
+    node.song.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<p>No hay resultados</p>`;
+    return;
   }
 
-  moveAfter(moveNode, afterNode) {
-    if (!moveNode || moveNode === afterNode) return;
+  filtered.forEach(node => {
+    const div = document.createElement("div");
+    div.className = "playlist-item";
+    div.textContent = node.song.name;
 
-   
-    if (moveNode.prev) moveNode.prev.next = moveNode.next;
-    else this.head = moveNode.next;
+    div.onclick = () => {
+      playlist.current = node;
+      playCurrent();
+    };
 
-    if (moveNode.next) moveNode.next.prev = moveNode.prev;
-    else this.tail = moveNode.prev;
+    container.appendChild(div);
+  });
+}
 
- 
-    if (!afterNode) {
-   
-      moveNode.prev = null;
-      moveNode.next = this.head;
 
-      if (this.head) this.head.prev = moveNode;
-      this.head = moveNode;
+// =======================
+// BUSCADOR
+// =======================
+function filterSongs(query) {
+  renderPlaylist(query);
+}
 
-      if (!this.tail) this.tail = moveNode;
-    } else {
-      moveNode.prev = afterNode;
-      moveNode.next = afterNode.next;
 
-      if (afterNode.next) {
-        afterNode.next.prev = moveNode;
-      } else {
-        this.tail = moveNode;
-      }
+// =======================
+// REPRODUCCIÓN
+// =======================
+function playCurrent() {
+  if (!playlist.current) return;
 
-      afterNode.next = moveNode;
-    }
+  audio.src = playlist.current.song.url;
+  audio.play();
+
+  nowTitle.textContent = playlist.current.song.name;
+  playBtn.textContent = "⏸";
+}
+
+function togglePlay() {
+  if (audio.paused) {
+    audio.play();
+    playBtn.textContent = "⏸";
+  } else {
+    audio.pause();
+    playBtn.textContent = "▶";
   }
+}
 
-  _cleanupNode(node) {
-    if (node.song?.url) URL.revokeObjectURL(node.song.url);
-    if (node.song?.cover) URL.revokeObjectURL(node.song.cover);
-  }
+function nextSong() {
+  playlist.next();
+  playCurrent();
+}
+
+function prevSong() {
+  playlist.prev();
+  playCurrent();
 }
