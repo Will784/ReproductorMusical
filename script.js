@@ -143,16 +143,16 @@ class DoublyLinkedList {
   moveAfter(moveNode, afterNode) {
     if (!moveNode || moveNode === afterNode) return;
 
-    // desconectar
+   
     if (moveNode.prev) moveNode.prev.next = moveNode.next;
     else this.head = moveNode.next;
 
     if (moveNode.next) moveNode.next.prev = moveNode.prev;
     else this.tail = moveNode.prev;
 
-    // insertar
+ 
     if (!afterNode) {
-      // mover al inicio
+   
       moveNode.prev = null;
       moveNode.next = this.head;
 
