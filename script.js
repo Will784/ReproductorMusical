@@ -1,7 +1,3 @@
-// ============================================================
-// DOUBLY LINKED LIST — Core Data Structure
-// ============================================================
-
 class SongNode {
   constructor(song) {
     this.song = song;
